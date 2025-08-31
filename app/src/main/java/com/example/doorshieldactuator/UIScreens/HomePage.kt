@@ -52,14 +52,32 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             Color(0xFF485563)
         )
     )
-
+    val carbonPulseBrush = Brush.horizontalGradient(
+        colors = listOf(
+            Color(0xFF3F281A), // Dark coffee brown
+            Color(0xFF9A8478)  // Warm beige bronze
+        )
+    )
+    val clickedBrush = Brush.horizontalGradient(
+        colors = listOf(
+            Color(0xFF616161), // Gray when clicked
+            Color(0xFF9E9E9E)  // Lighter gray shade
+        )
+    )
+    val ivorySmokeBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFFAF9F6), // Soft Ivory White
+            Color(0xFFDCD7CE), // Warm Beige Gray
+            Color(0xFFACA69A)  // Taupe Smoke
+        )
+    )
 
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF29313C),
+                    containerColor = Color(0xFFA29B56),
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White,
                     actionIconContentColor = Color.White
@@ -115,51 +133,68 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             contentAlignment = androidx.compose.ui.Alignment.Center,
             modifier = Modifier
                 .fillMaxSize()
-                .background(venomNoirBrush)
+                .background(Color(0xFFE3C289))
         ) {
 
             Row {
                 Button(
-                    onClick = {
-                        isClickedUnlockDoor = !isClickedUnlockDoor
-                    },
+                    onClick = { isClickedUnlockDoor = !isClickedUnlockDoor },
                     modifier = Modifier
-                        .size(width = 150.dp, height = 150.dp), shape = RoundedCornerShape(27),
+                        .size(width = 150.dp, height = 150.dp),
+                    shape = RoundedCornerShape(27),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isClickedUnlockDoor) Color(0xFF616161) else Color(
-                            0xFF212121
-                        ),
+                        containerColor = Color.Transparent,
                         contentColor = Color.White
-                    )
+                    ),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
                 ) {
-                    Text(
-                        if (isClickedUnlockDoor) "Door\nUnlocked" else "Unlock Door",
-                        fontSize = if (isClickedUnlockDoor) 20.sp else 25.sp,
-                        color = Color.White
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                brush = if (isClickedUnlockDoor) clickedBrush else carbonPulseBrush,
+                                shape = RoundedCornerShape(27)
+                            ),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        Text(
+                            if (isClickedUnlockDoor) "Door\nUnlocked" else "Unlock Door",
+                            fontSize = 25.sp,
+                            color = Color.White
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.width(20.dp))
 
                 Button(
-                    onClick = {
-                        isClickedlockDoor = !isClickedlockDoor
-                    },
+                    onClick = { isClickedlockDoor = !isClickedlockDoor },
                     modifier = Modifier
-                        .size(width = 150.dp, height = 150.dp), shape = RoundedCornerShape(27),
+                        .size(width = 150.dp, height = 150.dp),
+                    shape = RoundedCornerShape(27),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isClickedlockDoor) Color(0xFF616161) else Color(
-                            0xFF212121
-                        ),
+                        containerColor = Color.Transparent,
                         contentColor = Color.White
-                    )
+                    ),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
                 ) {
-                    Text(
-                        if (isClickedlockDoor) "Door Locked" else "Lock Door",
-                        fontSize = if (isClickedlockDoor) 25.sp else 25.sp,
-                        color = Color.White
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                brush = if (isClickedlockDoor) clickedBrush else carbonPulseBrush,
+                                shape = RoundedCornerShape(27)
+                            ),
+                        contentAlignment = androidx.compose.ui.Alignment.Center
+                    ) {
+                        Text(
+                            if (isClickedlockDoor) "Door\nLocked" else "Lock Door",
+                            fontSize = 25.sp,
+                            color = Color.White
+                        )
+                    }
                 }
+
 
 
             }
