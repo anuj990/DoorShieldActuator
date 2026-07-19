@@ -1,5 +1,7 @@
 package com.example.doorshieldactuator.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,10 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -32,12 +30,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.doorshieldactuator.model.DoorAction
 import com.example.doorshieldactuator.model.DoorHistoryItem
+import com.example.doorshieldactuator.ui.components.GlassSurface
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -47,17 +47,12 @@ import java.util.Locale
 fun HistoryScreen(
     viewModel: HistoryViewModel = viewModel()
 ) {
+    val historyItems by viewModel.filteredHistory.collectAsStateWithLifecycle()
+    val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
 
-    val historyItems by
-    viewModel.filteredHistory.collectAsStateWithLifecycle()
-
-    val selectedFilter by
-    viewModel.selectedFilter.collectAsStateWithLifecycle()
-
-    val groupedHistory =
-        historyItems.groupBy {
-            getDateSection(it.timestamp)
-        }
+    val groupedHistory = historyItems.groupBy {
+        getDateSection(it.timestamp)
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -65,16 +60,25 @@ fun HistoryScreen(
             horizontal = 20.dp,
             vertical = 20.dp
         ),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-
         item {
+            Text(
+                text = "History",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
 
-            HistoryHeader()
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = "View recent door activity",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
         item {
-
             HistoryFilters(
                 selectedFilter = selectedFilter,
                 onFilterSelected = viewModel::selectFilter
@@ -82,67 +86,31 @@ fun HistoryScreen(
         }
 
         if (historyItems.isEmpty()) {
-
             item {
-
                 EmptyHistory()
             }
-
         } else {
-
-            groupedHistory.forEach { (section, items) ->
-
-                item(
-                    key = section
-                ) {
-
+            groupedHistory.forEach { (section, sectionItems) ->
+                item(key = section) {
                     Text(
                         text = section.uppercase(),
                         style = MaterialTheme.typography.labelMedium,
-                        color =
-                            MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(
+                            start = 4.dp,
                             top = 8.dp
                         )
                     )
                 }
 
                 items(
-                    items = items,
-                    key = {
-                        it.id
-                    }
-                ) { historyItem ->
-
-                    HistoryItemCard(
-                        historyItem = historyItem
-                    )
+                    items = sectionItems,
+                    key = { it.id }
+                ) {
+                    HistoryItemCard(it)
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun HistoryHeader() {
-
-    Column {
-
-        Text(
-            text = "History",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
-
-        Text(
-            text = "View recent door activity",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 
@@ -151,190 +119,135 @@ private fun HistoryFilters(
     selectedFilter: HistoryFilter,
     onFilterSelected: (HistoryFilter) -> Unit
 ) {
-
-    Row(
+    GlassSurface(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        cornerRadius = 22.dp,
+        elevation = 6.dp,
+        contentPadding = PaddingValues(6.dp)
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            HistoryFilter.entries.forEach { filter ->
+                val selected = selectedFilter == filter
 
-        HistoryFilterChip(
-            text = "All",
-            selected =
-                selectedFilter == HistoryFilter.ALL,
-            onClick = {
-                onFilterSelected(
-                    HistoryFilter.ALL
-                )
-            },
-            modifier = Modifier.weight(1f)
-        )
-
-        HistoryFilterChip(
-            text = "Locked",
-            selected =
-                selectedFilter == HistoryFilter.LOCKED,
-            onClick = {
-                onFilterSelected(
-                    HistoryFilter.LOCKED
-                )
-            },
-            modifier = Modifier.weight(1f)
-        )
-
-        HistoryFilterChip(
-            text = "Unlocked",
-            selected =
-                selectedFilter == HistoryFilter.UNLOCKED,
-            onClick = {
-                onFilterSelected(
-                    HistoryFilter.UNLOCKED
-                )
-            },
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun HistoryFilterChip(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = {
-
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-
-                Text(
-                    text = text
-                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(17.dp))
+                        .background(
+                            if (selected) {
+                                MaterialTheme.colorScheme
+                                    .primaryContainer
+                                    .copy(alpha = 0.80f)
+                            } else {
+                                Color.Transparent
+                            }
+                        )
+                        .clickable {
+                            onFilterSelected(filter)
+                        }
+                        .padding(vertical = 11.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = when (filter) {
+                            HistoryFilter.ALL -> "All"
+                            HistoryFilter.LOCKED -> "Locked"
+                            HistoryFilter.UNLOCKED -> "Unlocked"
+                        },
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (selected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
             }
-        },
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor =
-                MaterialTheme.colorScheme.primaryContainer,
-            selectedLabelColor =
-                MaterialTheme.colorScheme.onPrimaryContainer
-        )
-    )
+        }
+    }
 }
 
 @Composable
 private fun HistoryItemCard(
     historyItem: DoorHistoryItem
 ) {
-
     val isUnlocked =
         historyItem.action == DoorAction.UNLOCKED
 
-    Card(
+    GlassSurface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor =
-                MaterialTheme.colorScheme.surface
-        )
+        cornerRadius = 22.dp,
+        elevation = 8.dp,
+        contentPadding = PaddingValues(16.dp)
     ) {
-
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment =
-                Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
             Surface(
                 modifier = Modifier.size(50.dp),
                 shape = CircleShape,
                 color = if (isUnlocked) {
-                    MaterialTheme.colorScheme.primaryContainer
+                    MaterialTheme.colorScheme.primaryContainer.copy(
+                        alpha = 0.75f
+                    )
                 } else {
-                    MaterialTheme.colorScheme.surfaceVariant
+                    MaterialTheme.colorScheme.surfaceVariant.copy(
+                        alpha = 0.65f
+                    )
                 }
             ) {
-
                 Box(
-                    contentAlignment =
-                        Alignment.Center
+                    contentAlignment = Alignment.Center
                 ) {
-
                     Icon(
-                        imageVector =
-                            if (isUnlocked) {
-                                Icons.Default.LockOpen
-                            } else {
-                                Icons.Default.Lock
-                            },
+                        imageVector = if (isUnlocked) {
+                            Icons.Default.LockOpen
+                        } else {
+                            Icons.Default.Lock
+                        },
                         contentDescription = null,
-                        tint =
-                            if (isUnlocked) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme
-                                    .onSurfaceVariant
-                            },
-                        modifier =
-                            Modifier.size(24.dp)
+                        tint = if (isUnlocked) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
 
-            Spacer(
-                modifier = Modifier.width(14.dp)
-            )
+            Spacer(Modifier.width(14.dp))
 
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-
                 Text(
-                    text =
-                        if (isUnlocked) {
-                            "Door Unlocked"
-                        } else {
-                            "Door Locked"
-                        },
-                    style =
-                        MaterialTheme.typography.titleMedium,
-                    color =
-                        MaterialTheme.colorScheme.onSurface
+                    text = if (isUnlocked) {
+                        "Door Unlocked"
+                    } else {
+                        "Door Locked"
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Spacer(
-                    modifier = Modifier.height(3.dp)
-                )
+                Spacer(Modifier.height(3.dp))
 
                 Text(
-                    text =
-                        "by ${historyItem.performedBy}",
-                    style =
-                        MaterialTheme.typography.bodyMedium,
-                    color =
-                        MaterialTheme.colorScheme
-                            .onSurfaceVariant
+                    text = "by ${historyItem.performedBy}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Text(
-                text = formatTime(
-                    historyItem.timestamp
-                ),
-                style =
-                    MaterialTheme.typography.bodySmall,
-                color =
-                    MaterialTheme.colorScheme
-                        .onSurfaceVariant
+                text = formatTime(historyItem.timestamp),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -342,130 +255,84 @@ private fun HistoryItemCard(
 
 @Composable
 private fun EmptyHistory() {
-
-    Column(
+    GlassSurface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                vertical = 80.dp
-            ),
-        horizontalAlignment =
-            Alignment.CenterHorizontally
+            .padding(top = 40.dp),
+        cornerRadius = 28.dp,
+        contentPadding = PaddingValues(
+            horizontal = 20.dp,
+            vertical = 48.dp
+        )
     ) {
-
-        Surface(
-            modifier = Modifier.size(80.dp),
-            shape = CircleShape,
-            color =
-                MaterialTheme.colorScheme.surfaceVariant
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Box(
-                contentAlignment =
-                    Alignment.Center
+            Surface(
+                modifier = Modifier.size(76.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme
+                    .primaryContainer
+                    .copy(alpha = 0.6f)
             ) {
-
-                Icon(
-                    imageVector =
-                        Icons.Default.History,
-                    contentDescription = null,
-                    modifier =
-                        Modifier.size(36.dp),
-                    tint =
-                        MaterialTheme.colorScheme
-                            .onSurfaceVariant
-                )
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.History,
+                        contentDescription = null,
+                        modifier = Modifier.size(34.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
+
+            Spacer(Modifier.height(18.dp))
+
+            Text(
+                text = "No activity found",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(Modifier.height(5.dp))
+
+            Text(
+                text = "Door activity will appear here.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
-
-        Text(
-            text = "No activity found",
-            style =
-                MaterialTheme.typography.titleMedium,
-            color =
-                MaterialTheme.colorScheme.onBackground
-        )
-
-        Spacer(
-            modifier = Modifier.height(6.dp)
-        )
-
-        Text(
-            text =
-                "Door activity will appear here.",
-            style =
-                MaterialTheme.typography.bodyMedium,
-            color =
-                MaterialTheme.colorScheme
-                    .onSurfaceVariant
-        )
     }
 }
 
-private fun formatTime(
-    timestamp: Long
-): String {
-
-    val formatter =
-        SimpleDateFormat(
-            "hh:mm a",
-            Locale.getDefault()
-        )
-
-    return formatter.format(
-        Date(timestamp)
-    )
+private fun formatTime(timestamp: Long): String {
+    return SimpleDateFormat(
+        "hh:mm a",
+        Locale.getDefault()
+    ).format(Date(timestamp))
 }
 
-private fun getDateSection(
-    timestamp: Long
-): String {
+private fun getDateSection(timestamp: Long): String {
+    val eventCalendar = Calendar.getInstance().apply {
+        timeInMillis = timestamp
+    }
 
-    val eventCalendar =
-        Calendar.getInstance().apply {
-            timeInMillis = timestamp
-        }
+    val today = Calendar.getInstance()
 
-    val today =
-        Calendar.getInstance()
-
-    val yesterday =
-        Calendar.getInstance().apply {
-            add(
-                Calendar.DAY_OF_YEAR,
-                -1
-            )
-        }
+    val yesterday = Calendar.getInstance().apply {
+        add(Calendar.DAY_OF_YEAR, -1)
+    }
 
     return when {
+        isSameDay(eventCalendar, today) -> "Today"
+        isSameDay(eventCalendar, yesterday) -> "Yesterday"
 
-        isSameDay(
-            eventCalendar,
-            today
-        ) -> {
-            "Today"
-        }
-
-        isSameDay(
-            eventCalendar,
-            yesterday
-        ) -> {
-            "Yesterday"
-        }
-
-        else -> {
-
-            SimpleDateFormat(
-                "dd MMM yyyy",
-                Locale.getDefault()
-            ).format(
-                Date(timestamp)
-            )
-        }
+        else -> SimpleDateFormat(
+            "dd MMM yyyy",
+            Locale.getDefault()
+        ).format(Date(timestamp))
     }
 }
 
@@ -473,15 +340,8 @@ private fun isSameDay(
     first: Calendar,
     second: Calendar
 ): Boolean {
-
-    return first.get(
-        Calendar.YEAR
-    ) == second.get(
-        Calendar.YEAR
-    ) &&
-            first.get(
-                Calendar.DAY_OF_YEAR
-            ) == second.get(
-        Calendar.DAY_OF_YEAR
-    )
+    return first.get(Calendar.YEAR) ==
+            second.get(Calendar.YEAR) &&
+            first.get(Calendar.DAY_OF_YEAR) ==
+            second.get(Calendar.DAY_OF_YEAR)
 }

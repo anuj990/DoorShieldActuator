@@ -15,19 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,24 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.doorshieldactuator.model.ProfileUiState
+import com.example.doorshieldactuator.ui.components.GlassSurface
 
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel()
 ) {
-
-    val uiState by
-    viewModel.uiState.collectAsStateWithLifecycle()
-
-    ProfileContent(
-        uiState = uiState
-    )
-}
-
-@Composable
-private fun ProfileContent(
-    uiState: ProfileUiState
-) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -69,25 +52,28 @@ private fun ProfileContent(
         ),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-
         item {
+            Text(
+                text = "Profile",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
 
-            ProfileHeader()
-        }
+            Spacer(Modifier.height(4.dp))
 
-        item {
-
-            UserProfileSection(
-                uiState = uiState
+            Text(
+                text = "Manage your account and preferences",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
         item {
+            UserProfileSection(uiState)
+        }
 
-            ProfileSection(
-                title = "ACCOUNT"
-            ) {
-
+        item {
+            ProfileSection("ACCOUNT") {
                 ProfileMenuItem(
                     icon = Icons.Default.Person,
                     title = "Personal Information",
@@ -95,11 +81,7 @@ private fun ProfileContent(
                     onClick = {}
                 )
 
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.outline.copy(
-                        alpha = 0.5f
-                    )
-                )
+                GlassDivider()
 
                 ProfileMenuItem(
                     icon = Icons.Default.Security,
@@ -111,11 +93,7 @@ private fun ProfileContent(
         }
 
         item {
-
-            ProfileSection(
-                title = "APP SETTINGS"
-            ) {
-
+            ProfileSection("APP SETTINGS") {
                 ProfileMenuItem(
                     icon = Icons.Default.Settings,
                     title = "Settings",
@@ -123,11 +101,7 @@ private fun ProfileContent(
                     onClick = {}
                 )
 
-                HorizontalDivider(
-                    color = MaterialTheme.colorScheme.outline.copy(
-                        alpha = 0.5f
-                    )
-                )
+                GlassDivider()
 
                 ProfileMenuItem(
                     icon = Icons.Default.Info,
@@ -139,41 +113,35 @@ private fun ProfileContent(
         }
 
         item {
+            GlassSurface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {},
+                cornerRadius = 20.dp,
+                elevation = 6.dp,
+                contentPadding = PaddingValues(17.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Logout,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
 
-            LogoutButton(
-                onClick = {}
-            )
+                    Spacer(Modifier.width(10.dp))
+
+                    Text(
+                        text = "Log Out",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
         }
-
-        item {
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProfileHeader() {
-
-    Column {
-
-        Text(
-            text = "Profile",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
-
-        Text(
-            text = "Manage your account and preferences",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 
@@ -181,50 +149,59 @@ private fun ProfileHeader() {
 private fun UserProfileSection(
     uiState: ProfileUiState
 ) {
-
-    Column(
+    GlassSurface(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        cornerRadius = 30.dp,
+        contentPadding = PaddingValues(
+            horizontal = 20.dp,
+            vertical = 28.dp
+        )
     ) {
-
-        Surface(
-            modifier = Modifier.size(110.dp),
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Box(
-                contentAlignment = Alignment.Center
+            GlassSurface(
+                cornerRadius = 60.dp,
+                elevation = 6.dp,
+                contentPadding = PaddingValues(10.dp)
             ) {
-
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Profile",
-                    modifier = Modifier.size(52.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Surface(
+                    modifier = Modifier.size(88.dp),
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme
+                        .primaryContainer
+                        .copy(alpha = 0.72f)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile",
+                            modifier = Modifier.size(46.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             }
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                text = uiState.name,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = uiState.email,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
-
-        Text(
-            text = uiState.name,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        Spacer(
-            modifier = Modifier.height(4.dp)
-        )
-
-        Text(
-            text = uiState.email,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 
@@ -233,9 +210,7 @@ private fun ProfileSection(
     title: String,
     content: @Composable () -> Unit
 ) {
-
     Column {
-
         Text(
             text = title,
             style = MaterialTheme.typography.labelMedium,
@@ -246,15 +221,14 @@ private fun ProfileSection(
             )
         )
 
-        Card(
+        GlassSurface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
+            cornerRadius = 24.dp,
+            contentPadding = PaddingValues(0.dp)
         ) {
-
-            content()
+            Column {
+                content()
+            }
         }
     }
 }
@@ -266,27 +240,23 @@ private fun ProfileMenuItem(
     subtitle: String,
     onClick: () -> Unit
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(
-                onClick = onClick
-            )
+            .clickable(onClick = onClick)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Surface(
             modifier = Modifier.size(46.dp),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer
+            color = MaterialTheme.colorScheme
+                .primaryContainer
+                .copy(alpha = 0.65f)
         ) {
-
             Box(
                 contentAlignment = Alignment.Center
             ) {
-
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
@@ -296,23 +266,18 @@ private fun ProfileMenuItem(
             }
         }
 
-        Spacer(
-            modifier = Modifier.width(14.dp)
-        )
+        Spacer(Modifier.width(14.dp))
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
-
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            Spacer(
-                modifier = Modifier.height(3.dp)
-            )
+            Spacer(Modifier.height(3.dp))
 
             Text(
                 text = subtitle,
@@ -330,34 +295,13 @@ private fun ProfileMenuItem(
 }
 
 @Composable
-private fun LogoutButton(
-    onClick: () -> Unit
-) {
-
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer
+private fun GlassDivider() {
+    HorizontalDivider(
+        modifier = Modifier.padding(
+            horizontal = 16.dp
+        ),
+        color = MaterialTheme.colorScheme.outline.copy(
+            alpha = 0.22f
         )
-    ) {
-
-        Icon(
-            imageVector = Icons.Default.Logout,
-            contentDescription = null
-        )
-
-        Spacer(
-            modifier = Modifier.width(10.dp)
-        )
-
-        Text(
-            text = "Log Out",
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
+    )
 }

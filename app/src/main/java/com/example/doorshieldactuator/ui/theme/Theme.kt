@@ -8,49 +8,39 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-
     primary = BluePrimaryLight,
     onPrimary = Color.White,
-
     primaryContainer = LightPrimaryContainer,
     onPrimaryContainer = LightOnPrimaryContainer,
-
     background = LightBackground,
     onBackground = LightOnBackground,
-
     surface = LightSurface,
     onSurface = LightOnSurface,
-
     surfaceVariant = LightSurfaceVariant,
     onSurfaceVariant = LightOnSurfaceVariant,
-
     outline = LightOutline,
-
     error = ErrorLight,
-    onError = Color.White
+    onError = Color.White,
+    errorContainer = Color(0xFFFFE2E2),
+    onErrorContainer = Color(0xFF8B1515)
 )
 
 private val DarkColorScheme = darkColorScheme(
-
     primary = BluePrimaryDark,
-    onPrimary = Color(0xFF0F172A),
-
+    onPrimary = Color(0xFF071525),
     primaryContainer = DarkPrimaryContainer,
     onPrimaryContainer = DarkOnPrimaryContainer,
-
     background = DarkBackground,
     onBackground = DarkOnBackground,
-
     surface = DarkSurface,
     onSurface = DarkOnSurface,
-
     surfaceVariant = DarkSurfaceVariant,
     onSurfaceVariant = DarkOnSurfaceVariant,
-
     outline = DarkOutline,
-
     error = ErrorDark,
-    onError = Color(0xFF450A0A)
+    onError = Color(0xFF3D0000),
+    errorContainer = Color(0xFF4A1919),
+    onErrorContainer = Color(0xFFFFDADA)
 )
 
 @Composable
@@ -58,15 +48,12 @@ fun DoorShieldActuatorTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-
-    val colorScheme = if (darkTheme) {
-        DarkColorScheme
-    } else {
-        LightColorScheme
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = if (darkTheme) {
+            DarkColorScheme
+        } else {
+            LightColorScheme
+        },
         typography = DoorShieldTypography,
         content = content
     )
