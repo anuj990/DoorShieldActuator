@@ -35,10 +35,11 @@ val WarningOrange = Color(0xFFF59E0B)
 val ErrorLight = Color(0xFFDC2626)
 val ErrorDark = Color(0xFFFF7B7B)
 
-val LightGlassBackgroundTop = Color(0xFFDCEBFF)
-val LightGlassBackgroundMiddle = Color(0xFFF5F8FF)
-val LightGlassBackgroundBottom = Color(0xFFE8F3FF)
+
 
 val DarkGlassBackgroundTop = Color(0xFF101C31)
 val DarkGlassBackgroundMiddle = Color(0xFF090E18)
 val DarkGlassBackgroundBottom = Color(0xFF03060B)
+val LightGlassBackgroundTop = Color(0xFFD9E9FF)
+val LightGlassBackgroundMiddle = Color(0xFFF4F8FF)
+val LightGlassBackgroundBottom = Color(0xFFE5F0FF)

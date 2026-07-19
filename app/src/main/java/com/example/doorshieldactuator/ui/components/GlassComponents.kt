@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 fun GlassSurface(
     modifier: Modifier = Modifier,
     cornerRadius: Dp = 24.dp,
-    elevation: Dp = 12.dp,
+    elevation: Dp = 6.dp,
     contentPadding: PaddingValues = PaddingValues(16.dp),
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -32,13 +32,13 @@ fun GlassSurface(
     val backgroundBrush = Brush.verticalGradient(
         colors = if (isDark) {
             listOf(
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.78f),
-                MaterialTheme.colorScheme.surface.copy(alpha = 0.48f)
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.68f),
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.38f)
             )
         } else {
             listOf(
-                Color.White.copy(alpha = 0.78f),
-                Color.White.copy(alpha = 0.48f)
+                Color.White.copy(alpha = 0.62f),
+                Color.White.copy(alpha = 0.30f)
             )
         }
     )
@@ -46,13 +46,13 @@ fun GlassSurface(
     val borderBrush = Brush.verticalGradient(
         colors = if (isDark) {
             listOf(
-                Color.White.copy(alpha = 0.20f),
-                Color.White.copy(alpha = 0.05f)
+                Color.White.copy(alpha = 0.22f),
+                Color.White.copy(alpha = 0.06f)
             )
         } else {
             listOf(
                 Color.White.copy(alpha = 0.95f),
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+                Color.White.copy(alpha = 0.30f)
             )
         }
     )
@@ -62,7 +62,17 @@ fun GlassSurface(
             .shadow(
                 elevation = elevation,
                 shape = shape,
-                clip = false
+                clip = false,
+                ambientColor = if (isDark) {
+                    Color.Black.copy(alpha = 0.35f)
+                } else {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+                },
+                spotColor = if (isDark) {
+                    Color.Black.copy(alpha = 0.45f)
+                } else {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                }
             )
             .clip(shape)
             .background(backgroundBrush)
