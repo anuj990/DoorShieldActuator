@@ -20,24 +20,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.doorshieldactuator.model.DeviceConnectionStatus
 import com.example.doorshieldactuator.model.DoorStatus
 import com.example.doorshieldactuator.model.DoorUiState
 import com.example.doorshieldactuator.ui.theme.SuccessGreen
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: HomeViewModel = viewModel()
+) {
 
-    /*
-     * Temporary UI state.
-     *
-     * We will move this to HomeViewModel later.
-     */
-    var uiState by remember {
-        mutableStateOf(
-            DoorUiState()
-        )
-    }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -70,29 +65,7 @@ fun HomeScreen() {
 
         DoorActionButton(
             uiState = uiState,
-            onClick = {
-
-                /*
-                 * This is only temporary simulation.
-                 *
-                 * Later this will become:
-                 *
-                 * viewModel.onDoorActionClick()
-                 */
-
-                uiState = uiState.copy(
-                    doorStatus = when (uiState.doorStatus) {
-
-                        DoorStatus.LOCKED -> {
-                            DoorStatus.UNLOCKED
-                        }
-
-                        DoorStatus.UNLOCKED -> {
-                            DoorStatus.LOCKED
-                        }
-                    }
-                )
-            }
+            onClick = viewModel::onDoorActionClick
         )
 
         Spacer(
