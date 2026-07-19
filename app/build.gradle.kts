@@ -61,6 +61,9 @@ android {
 
 dependencies {
 
+
+    implementation("androidx.compose.material:material:1.11.4")
+    implementation("androidx.compose.material:material-icons-extended")
     // ------------------------------------------------
     // Android Core
     // ------------------------------------------------
@@ -76,7 +79,7 @@ dependencies {
     implementation(
         libs.androidx.activity.compose
     )
-
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // ------------------------------------------------
     // Jetpack Compose BOM
