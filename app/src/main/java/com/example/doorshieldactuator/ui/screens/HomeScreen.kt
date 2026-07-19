@@ -23,16 +23,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.doorshieldactuator.model.DeviceConnectionStatus
+import com.example.doorshieldactuator.model.DoorAction
 import com.example.doorshieldactuator.model.DoorStatus
 import com.example.doorshieldactuator.model.DoorUiState
 import com.example.doorshieldactuator.ui.theme.SuccessGreen
-
+import com.example.doorshieldactuator.model.DoorHistoryItem
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val historyItems by viewModel.historyItems.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -73,7 +75,7 @@ fun HomeScreen(
         )
 
         LastActivityCard(
-            doorStatus = uiState.doorStatus
+            historyItem = historyItems.firstOrNull()
         )
 
         Spacer(
@@ -371,17 +373,15 @@ private fun DoorActionButton(
 
 @Composable
 private fun LastActivityCard(
-    doorStatus: DoorStatus
+    historyItem: DoorHistoryItem?
 ) {
-
-    val isLocked =
-        doorStatus == DoorStatus.LOCKED
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor =
+                MaterialTheme.colorScheme.surface
         )
     ) {
 
@@ -389,23 +389,28 @@ private fun LastActivityCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(18.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment =
+                Alignment.CenterVertically
         ) {
 
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
+                color =
+                    MaterialTheme.colorScheme.primaryContainer
             ) {
 
                 Box(
-                    contentAlignment = Alignment.Center
+                    contentAlignment =
+                        Alignment.Center
                 ) {
 
                     Icon(
-                        imageVector = Icons.Default.History,
+                        imageVector =
+                            Icons.Default.History,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint =
+                            MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -420,8 +425,10 @@ private fun LastActivityCard(
 
                 Text(
                     text = "Last activity",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style =
+                        MaterialTheme.typography.titleSmall,
+                    color =
+                        MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(
@@ -429,13 +436,22 @@ private fun LastActivityCard(
                 )
 
                 Text(
-                    text = if (isLocked) {
-                        "Door was locked recently"
-                    } else {
-                        "Door was unlocked recently"
+                    text = when {
+
+                        historyItem == null ->
+                            "No activity yet"
+
+                        historyItem.action ==
+                                DoorAction.LOCKED ->
+                            "Door was locked by ${historyItem.performedBy}"
+
+                        else ->
+                            "Door was unlocked by ${historyItem.performedBy}"
                     },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style =
+                        MaterialTheme.typography.bodyMedium,
+                    color =
+                        MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
