@@ -1,6 +1,6 @@
 package com.example.doorshieldactuator.ui.screens
 
-import androidx.compose.animation.AnimatedContent
+import com.example.doorshieldactuator.ui.components.CameraStreamCard
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -54,7 +54,8 @@ import com.example.doorshieldactuator.model.DoorStatus
 import com.example.doorshieldactuator.model.DoorUiState
 import com.example.doorshieldactuator.ui.components.GlassSurface
 import com.example.doorshieldactuator.ui.theme.SuccessGreen
-
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
@@ -75,9 +76,12 @@ private fun HomeContent(
     lastHistoryItem: DoorHistoryItem?,
     onDoorActionClick: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(
                 horizontal = 20.dp,
                 vertical = 20.dp
@@ -85,33 +89,34 @@ private fun HomeContent(
     ) {
         HomeHeader()
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(modifier = Modifier.height(24.dp))
 
         ConnectionStatus(
             connectionStatus = uiState.connectionStatus
         )
 
-        Spacer(
-            modifier = Modifier.weight(0.6f)
+        Spacer(modifier = Modifier.height(20.dp))
+
+        CameraStreamCard(
+            streamUrl = uiState.cameraStreamUrl
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         DoorControlSection(
             uiState = uiState,
             onDoorActionClick = onDoorActionClick
         )
 
-        Spacer(
-            modifier = Modifier.weight(0.8f)
-        )
+        Spacer(modifier = Modifier.height(32.dp))
 
         LastActivityCard(
             historyItem = lastHistoryItem
         )
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
-
 @Composable
 private fun HomeHeader() {
     Row(

@@ -1,6 +1,6 @@
 package com.example.doorshieldactuator.data.repository
 
-import com.example.doorshieldactuator.data.repository.network.NetworkModule
+import com.example.doorshieldactuator.data.repository.network.MockDoorApi
 import com.example.doorshieldactuator.model.DeviceConnectionStatus
 import com.example.doorshieldactuator.model.DoorAction
 import com.example.doorshieldactuator.model.DoorHistoryItem
@@ -12,8 +12,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 object DoorRepository {
-
-    private val api = NetworkModule.doorApi
 
     private val _doorState = MutableStateFlow(
         DoorUiState()
@@ -32,7 +30,7 @@ object DoorRepository {
 
         try {
 
-            val response = api.getStatus()
+            val response = MockDoorApi.getStatus()
 
             if (response.isSuccessful) {
 
@@ -69,7 +67,7 @@ object DoorRepository {
 
     suspend fun lockDoor() {
 
-        val response = api.lockDoor()
+        val response = MockDoorApi.lockDoor()
 
         if (response.isSuccessful) {
 
@@ -83,7 +81,7 @@ object DoorRepository {
 
     suspend fun unlockDoor() {
 
-        val response = api.unlockDoor()
+        val response = MockDoorApi.unlockDoor()
 
         if (response.isSuccessful) {
 
