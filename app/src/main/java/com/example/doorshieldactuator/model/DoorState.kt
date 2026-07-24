@@ -6,6 +6,7 @@ enum class DoorStatus {
 }
 
 enum class DeviceConnectionStatus {
+    CONNECTING,
     CONNECTED,
     DISCONNECTED
 }
@@ -13,7 +14,9 @@ enum class DeviceConnectionStatus {
 data class DoorUiState(
     val doorStatus: DoorStatus = DoorStatus.LOCKED,
     val connectionStatus: DeviceConnectionStatus =
-        DeviceConnectionStatus.CONNECTED,
+        DeviceConnectionStatus.DISCONNECTED,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val cameraStreamUrl: String =
+        "http://192.168.4.1:81/stream"
 )

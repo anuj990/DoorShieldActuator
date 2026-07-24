@@ -3,7 +3,9 @@ package com.example.doorshieldactuator.ui.screens
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.doorshieldactuator.data.repository.DoorRepository
+import com.example.doorshieldactuator.model.DeviceConnectionStatus
 import com.example.doorshieldactuator.model.DoorHistoryItem
+import com.example.doorshieldactuator.model.DoorStatus
 import com.example.doorshieldactuator.model.DoorUiState
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,15 +18,66 @@ class HomeViewModel : ViewModel() {
     val historyItems: StateFlow<List<DoorHistoryItem>> =
         DoorRepository.historyItems
 
+    init {
+        checkConnection()
+    }
+
     fun onDoorActionClick() {
 
-        if (uiState.value.isLoading) {
-            return
-        }
+        if (uiState.value.isLoading) return
 
         viewModelScope.launch {
 
-            DoorRepository.toggleDoor()
+            DoorRepository.setLoading(true)
+
+            try {
+
+                when (uiState.value.doorStatus) {
+
+                    DoorStatus.LOCKED -> {
+                        DoorRepository.unlockDoor()
+                    }
+
+                    DoorStatus.UNLOCKED -> {
+                        DoorRepository.lockDoor()
+                    }
+                }
+
+            } catch (e: Exception) {
+
+                DoorRepository.setError(
+                    e.message ?: "Something went wrong"
+                )
+            }
         }
+    }
+
+    fun checkConnection() {
+
+        viewModelScope.launch {
+
+            DoorRepository.setConnection(
+                DeviceConnectionStatus.CONNECTING
+            )
+
+            try {
+
+                DoorRepository.checkConnection()
+
+            } catch (e: Exception) {
+
+                DoorRepository.setConnection(
+                    DeviceConnectionStatus.DISCONNECTED
+                )
+            }
+        }
+    }
+
+    fun onDoorLocked() {
+        DoorRepository.onDoorLocked()
+    }
+
+    fun onDoorUnlocked() {
+        DoorRepository.onDoorUnlocked()
     }
 }
