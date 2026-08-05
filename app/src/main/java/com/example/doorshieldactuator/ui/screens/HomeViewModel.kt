@@ -7,7 +7,9 @@ import com.example.doorshieldactuator.model.DeviceConnectionStatus
 import com.example.doorshieldactuator.model.DoorHistoryItem
 import com.example.doorshieldactuator.model.DoorStatus
 import com.example.doorshieldactuator.model.DoorUiState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
@@ -19,7 +21,36 @@ class HomeViewModel : ViewModel() {
         DoorRepository.historyItems
 
     init {
-        checkConnection()
+        startPolling()
+    }
+
+    private fun startPolling() {
+
+        viewModelScope.launch {
+
+            while (isActive) {
+
+                try {
+
+                    DoorRepository.checkConnection()
+
+                    val motion =
+                        DoorRepository.checkMotion()
+
+                    if (motion) {
+                        onMotionDetected()
+                    }
+
+                } catch (_: Exception) {
+
+                    DoorRepository.setConnection(
+                        DeviceConnectionStatus.DISCONNECTED
+                    )
+                }
+
+                delay(1000)
+            }
+        }
     }
 
     fun onDoorActionClick() {
@@ -34,50 +65,23 @@ class HomeViewModel : ViewModel() {
 
                 when (uiState.value.doorStatus) {
 
-                    DoorStatus.LOCKED -> {
+                    DoorStatus.LOCKED ->
                         DoorRepository.unlockDoor()
-                    }
 
-                    DoorStatus.UNLOCKED -> {
+                    DoorStatus.UNLOCKED ->
                         DoorRepository.lockDoor()
-                    }
                 }
 
             } catch (e: Exception) {
 
                 DoorRepository.setError(
-                    e.message ?: "Something went wrong"
+                    e.message ?: "Unknown Error"
                 )
             }
         }
     }
 
-    fun checkConnection() {
+    private fun onMotionDetected() {
 
-        viewModelScope.launch {
-
-            DoorRepository.setConnection(
-                DeviceConnectionStatus.CONNECTING
-            )
-
-            try {
-
-                DoorRepository.checkConnection()
-
-            } catch (e: Exception) {
-
-                DoorRepository.setConnection(
-                    DeviceConnectionStatus.DISCONNECTED
-                )
-            }
-        }
-    }
-
-    fun onDoorLocked() {
-        DoorRepository.onDoorLocked()
-    }
-
-    fun onDoorUnlocked() {
-        DoorRepository.onDoorUnlocked()
     }
 }

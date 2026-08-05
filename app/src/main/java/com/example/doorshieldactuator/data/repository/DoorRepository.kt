@@ -1,6 +1,6 @@
 package com.example.doorshieldactuator.data.repository
 
-import com.example.doorshieldactuator.data.repository.network.MockDoorApi
+import com.example.doorshieldactuator.data.repository.network.NetworkModule
 import com.example.doorshieldactuator.model.DeviceConnectionStatus
 import com.example.doorshieldactuator.model.DoorAction
 import com.example.doorshieldactuator.model.DoorHistoryItem
@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 object DoorRepository {
+
+    private val api = NetworkModule.doorApi
 
     private val _doorState = MutableStateFlow(
         DoorUiState()
@@ -30,23 +32,32 @@ object DoorRepository {
 
         try {
 
-            val response = MockDoorApi.getStatus()
+            val response = api.getStatus()
 
-            if (response.isSuccessful) {
+            if (response.isSuccessful && response.body() != null) {
+
+                val body = response.body()!!
 
                 _doorState.update {
                     it.copy(
-                        connectionStatus = DeviceConnectionStatus.CONNECTED
-                    )
-                }
+                        connectionStatus =
+                            if (body.connected)
+                                DeviceConnectionStatus.CONNECTED
+                            else
+                                DeviceConnectionStatus.DISCONNECTED,
 
-                response.body()?.let {
+                        doorStatus =
+                            if (body.door.equals(
+                                    "locked",
+                                    true
+                                )
+                            )
+                                DoorStatus.LOCKED
+                            else
+                                DoorStatus.UNLOCKED,
 
-                    updateDoorStatus(
-                        if (it.locked)
-                            DoorStatus.LOCKED
-                        else
-                            DoorStatus.UNLOCKED
+                        isLoading = false,
+                        errorMessage = null
                     )
                 }
 
@@ -57,7 +68,7 @@ object DoorRepository {
                 )
             }
 
-        } catch (_: Exception) {
+        } catch (e: Exception) {
 
             setConnection(
                 DeviceConnectionStatus.DISCONNECTED
@@ -67,29 +78,53 @@ object DoorRepository {
 
     suspend fun lockDoor() {
 
-        val response = MockDoorApi.lockDoor()
+        val response = api.lockDoor()
 
-        if (response.isSuccessful) {
+        if (!response.isSuccessful) {
 
-            updateDoorStatus(DoorStatus.LOCKED)
-
-        } else {
-
-            throw Exception("Failed to lock door")
+            throw Exception("Unable to lock door")
         }
+
+        updateDoorStatus(
+            DoorStatus.LOCKED
+        )
     }
 
     suspend fun unlockDoor() {
 
-        val response = MockDoorApi.unlockDoor()
+        val response = api.unlockDoor()
 
-        if (response.isSuccessful) {
+        if (!response.isSuccessful) {
 
-            updateDoorStatus(DoorStatus.UNLOCKED)
+            throw Exception("Unable to unlock door")
+        }
 
-        } else {
+        updateDoorStatus(
+            DoorStatus.UNLOCKED
+        )
+    }
 
-            throw Exception("Failed to unlock door")
+    suspend fun checkMotion(): Boolean {
+
+        return try {
+
+            val response = api.getMotion()
+
+            if (
+                response.isSuccessful &&
+                response.body() != null
+            ) {
+
+                response.body()!!.motion
+
+            } else {
+
+                false
+            }
+
+        } catch (e: Exception) {
+
+            false
         }
     }
 
@@ -98,6 +133,7 @@ object DoorRepository {
     ) {
 
         _doorState.update {
+
             it.copy(
                 doorStatus = status,
                 isLoading = false,
@@ -113,6 +149,7 @@ object DoorRepository {
     ) {
 
         _doorState.update {
+
             it.copy(
                 isLoading = loading
             )
@@ -124,6 +161,7 @@ object DoorRepository {
     ) {
 
         _doorState.update {
+
             it.copy(
                 connectionStatus = status
             )
@@ -135,37 +173,36 @@ object DoorRepository {
     ) {
 
         _doorState.update {
+
             it.copy(
-                isLoading = false,
-                errorMessage = message
+                errorMessage = message,
+                isLoading = false
             )
         }
-    }
-
-    fun onDoorLocked() {
-        updateDoorStatus(DoorStatus.LOCKED)
-    }
-
-    fun onDoorUnlocked() {
-        updateDoorStatus(DoorStatus.UNLOCKED)
     }
 
     private fun addHistoryItem(
         doorStatus: DoorStatus
     ) {
 
-        val history = DoorHistoryItem(
+        val item = DoorHistoryItem(
+
             id = System.nanoTime(),
-            action = if (doorStatus == DoorStatus.LOCKED)
-                DoorAction.LOCKED
-            else
-                DoorAction.UNLOCKED,
+
+            action =
+                if (doorStatus == DoorStatus.LOCKED)
+                    DoorAction.LOCKED
+                else
+                    DoorAction.UNLOCKED,
+
             performedBy = "You",
+
             timestamp = System.currentTimeMillis()
         )
 
         _historyItems.update {
-            listOf(history) + it
+
+            listOf(item) + it
         }
     }
 }
