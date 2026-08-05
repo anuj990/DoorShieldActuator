@@ -51,8 +51,12 @@ fun CameraStreamCard(
                         loadUrl(streamUrl)
                     }
                 },
-                update = {
-                    it.loadUrl(streamUrl)
+                update = { webView ->
+
+                    if (webView.url != streamUrl) {
+
+                        webView.loadUrl(streamUrl)
+                    }
                 }
             )
         }

@@ -56,12 +56,30 @@ import com.example.doorshieldactuator.ui.components.GlassSurface
 import com.example.doorshieldactuator.ui.theme.SuccessGreen
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import com.example.doorshieldactuator.data.repository.notification.NotificationHelper
+
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val historyItems by viewModel.historyItems.collectAsStateWithLifecycle()
+    val motionDetected by
+    viewModel.motionDetected.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+
+    LaunchedEffect(motionDetected) {
+
+        if (motionDetected) {
+
+            NotificationHelper.showMotionNotification(
+                context
+            )
+        }
+    }
 
     HomeContent(
         uiState = uiState,

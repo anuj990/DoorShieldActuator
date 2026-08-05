@@ -8,7 +8,9 @@ import com.example.doorshieldactuator.model.DoorHistoryItem
 import com.example.doorshieldactuator.model.DoorStatus
 import com.example.doorshieldactuator.model.DoorUiState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -19,6 +21,14 @@ class HomeViewModel : ViewModel() {
 
     val historyItems: StateFlow<List<DoorHistoryItem>> =
         DoorRepository.historyItems
+
+    private val _motionDetected =
+        MutableStateFlow(false)
+
+    val motionDetected =
+        _motionDetected.asStateFlow()
+
+    private var previousMotion = false
 
     init {
         startPolling()
@@ -37,9 +47,17 @@ class HomeViewModel : ViewModel() {
                     val motion =
                         DoorRepository.checkMotion()
 
-                    if (motion) {
-                        onMotionDetected()
+                    if (motion && !previousMotion) {
+
+                        _motionDetected.value = true
                     }
+
+                    if (!motion) {
+
+                        _motionDetected.value = false
+                    }
+
+                    previousMotion = motion
 
                 } catch (_: Exception) {
 
@@ -79,9 +97,5 @@ class HomeViewModel : ViewModel() {
                 )
             }
         }
-    }
-
-    private fun onMotionDetected() {
-
     }
 }

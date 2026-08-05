@@ -1,5 +1,7 @@
 package com.example.doorshieldactuator.model
 
+import com.example.doorshieldactuator.data.repository.network.DeviceManager
+
 enum class DoorStatus {
     LOCKED,
     UNLOCKED
@@ -18,5 +20,5 @@ data class DoorUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val cameraStreamUrl: String =
-        "http://192.168.4.1:81/stream"
+        DeviceManager.streamUrl
 )

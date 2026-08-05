@@ -37,6 +37,7 @@ object DoorRepository {
             if (response.isSuccessful && response.body() != null) {
 
                 val body = response.body()!!
+                println(body)
 
                 _doorState.update {
                     it.copy(

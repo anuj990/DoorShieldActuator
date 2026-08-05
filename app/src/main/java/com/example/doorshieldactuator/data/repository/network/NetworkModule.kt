@@ -30,7 +30,7 @@ object NetworkModule {
         .build()
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl(EspConfig.BASE_URL)
+        .baseUrl(DeviceManager.baseUrl)
         .client(okHttpClient)
         .addConverterFactory(
             GsonConverterFactory.create()
