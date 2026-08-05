@@ -1,6 +1,5 @@
 package com.example.doorshieldactuator.data.repository.network
 
-
 object DeviceManager {
 
     var esp32Ip = "192.168.4.1"
